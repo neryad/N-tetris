@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="main.css" />
+    <title>N-tetris</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header"><div id="score"></div></div>
+      <div class="content">
+        <canvas id="tetris" width="240" height="400"></canvas>
+      </div>
+      <div class="footer">
+        <div class="directions">
+          <div class="up">^</div>
+          <div class="sides">
+            <div class="left">'<'</div>
+            <div class="right">'>'</div>
+          </div>
+          <div class="dow">a</div>
+        </div>
+        <div class="rotate"></div>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
