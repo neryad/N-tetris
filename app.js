@@ -1,7 +1,15 @@
 const canvas = document.getElementById('tetris');
+const left = document.getElementById('left');
+const right = document.getElementById('right');
+const down = document.getElementById('down');
+const rotateLeft = document.getElementById('rotate1');
+const rotateRight = document.getElementById('rotate2');
 const context = canvas.getContext('2d');
 context.scale(20, 20);
-context.fillStyle = '#000';
+// canvas.window.screen.height;
+// canvas.window.screen.width;
+// context.fillStyle = '#2f3538';
+//context.fillStyle = 'rgba(255,255,255, 0.5)';
 context.fillRect(0, 0, canvas.width, canvas.height);
 
 function collide(playZone, player) {
@@ -90,10 +98,25 @@ function generatePieces(type) {
 }
 
 function draw() {
-  context.fillStyle = '#000';
+  context.fillStyle = '#2f3538';
   context.fillRect(0, 0, canvas.width, canvas.height);
   drawMatrix(playZone, { x: 0, y: 0 });
   drawMatrix(player.matrix, player.pos);
+}
+function shuffle(array) {
+  var currentIndex = array.length,
+    temporaryValue,
+    randomIndex;
+
+  while (0 !== currentIndex) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
 }
 
 function drawMatrix(matrix, offset) {
@@ -139,6 +162,7 @@ function playerMove(dir) {
 
 function resetPlayer() {
   let pieces = 'ILJOTSZ';
+
   player.matrix = generatePieces(pieces[(pieces.length * Math.random()) | 0]);
   player.pos.y = 0;
   player.pos.x =
@@ -198,15 +222,16 @@ function updateScore() {
   document.getElementById('score').innerText = player.score;
 }
 const colors = [
-  null,
+  'b9605c',
   '#ec5565',
   '#f26e53',
   '#6798d0',
   '#ffc355',
   '#5bc1a6',
   '#e788b8',
-  '#f4f7fa',
+  '#f5cdaa',
 ];
+
 const playZone = createMatrix(12, 20);
 
 const player = {
@@ -229,10 +254,22 @@ document.addEventListener('keydown', (event) => {
   } else if (event.keyCode === 88) {
     playerRotation(1);
   }
-  //40 abajo
-  //37 left
-  //39 right
-  //38 up
 });
+left.addEventListener('click', () => {
+  playerMove(-1);
+});
+right.addEventListener('click', () => {
+  playerMove(1);
+});
+down.addEventListener('click', () => {
+  playerDown();
+});
+rotateLeft.addEventListener('click', () => {
+  playerRotation(-1);
+});
+rotateRight.addEventListener('click', () => {
+  playerRotation(1);
+});
+
 resetPlayer();
 update();

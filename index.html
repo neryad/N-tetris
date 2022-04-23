@@ -5,25 +5,49 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+      rel="stylesheet"
+    />
     <title>N-tetris</title>
   </head>
 
   <body>
     <div class="container">
-      <div class="header"><div id="score"></div></div>
+      <div class="header">
+        <div class="score">
+          <p>SCORE</p>
+          <div id="score"><span id="playerScore">0</span></div>
+        </div>
+      </div>
       <div class="content">
         <canvas id="tetris" width="240" height="400"></canvas>
       </div>
       <div class="footer">
         <div class="directions">
-          <div class="up">^</div>
-          <div class="sides">
-            <div class="left">'<'</div>
-            <div class="right">'>'</div>
+          <div class="btnBro">
+            <button id="left">
+              <i class="fa-solid fa-angle-left"></i>
+            </button>
+            <button id="down"><i class="fa-solid fa-angle-down"></i></button>
+            <button id="right">
+              <i class="fa-solid fa-angle-right"></i>
+            </button>
+            <button id="rotate1">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+            </button>
+            <button id="rotate2">
+              <i class="fa-solid fa-arrow-rotate-right"></i>
+            </button>
           </div>
-          <div class="dow">a</div>
         </div>
-        <div class="rotate"></div>
+        <!-- <div class="rotate">
+          <button><i class="fa-solid fa-arrow-rotate-left"></i></button>
+        </div> -->
       </div>
     </div>
     <script src="app.js"></script>
