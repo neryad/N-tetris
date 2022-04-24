@@ -5,12 +5,21 @@ const down = document.getElementById('down');
 const rotateLeft = document.getElementById('rotate1');
 const rotateRight = document.getElementById('rotate2');
 const context = canvas.getContext('2d');
+const pausedScreen = document.querySelector('.paused-screen')
+const pauseBtn = document.querySelector('.button-pause')
+const playBtn = document.querySelector('.button-play')
 context.scale(20, 20);
 // canvas.window.screen.height;
 // canvas.window.screen.width;
 // context.fillStyle = '#2f3538';
 //context.fillStyle = 'rgba(255,255,255, 0.5)';
 context.fillRect(0, 0, canvas.width, canvas.height);
+
+let dropCounter = 0;
+let dropInterval = 1000;
+let lastTime = 0;
+let pieces = generateQueuePieces()
+let gamePaused = false
 
 function collide(playZone, player) {
   // const [m, o] = [player.matrix, player.pos];
@@ -87,6 +96,7 @@ function generatePieces(type) {
       [0, 6, 0, 0],
       [0, 6, 0, 0],
       [0, 6, 0, 0],
+      [0, 6, 0, 0],
     ];
   } else if (type === 'J') {
     return [
@@ -103,6 +113,7 @@ function draw() {
   drawMatrix(playZone, { x: 0, y: 0 });
   drawMatrix(player.matrix, player.pos);
 }
+
 function shuffle(array) {
   var currentIndex = array.length,
     temporaryValue,
@@ -160,10 +171,18 @@ function playerMove(dir) {
   }
 }
 
-function resetPlayer() {
-  let pieces = 'ILJOTSZ';
+function generateQueuePieces () {
+  const arr = Array.from('ILJOTSZ')
+  arr.sort(() => 0.5 - Math.random());  
+  return arr;
+}
 
-  player.matrix = generatePieces(pieces[(pieces.length * Math.random()) | 0]);
+function resetPlayer() {
+  if(pieces.length === 0){
+    pieces = generateQueuePieces()
+  }
+
+  generateMatrixAndRemoveFromQueue()
   player.pos.y = 0;
   player.pos.x =
     ((playZone[0].length / 2) | 0) - ((player.matrix[0].length / 2) | 0);
@@ -171,8 +190,15 @@ function resetPlayer() {
   if (collide(playZone, player)) {
     playZone.forEach((row) => row.fill(0));
     player.score = 0;
+    pieces = generateQueuePieces()
+    generateMatrixAndRemoveFromQueue()
     updateScore();
   }
+}
+
+function generateMatrixAndRemoveFromQueue(){
+  player.matrix = generatePieces(pieces[0]);
+  pieces.shift()
 }
 
 function playerRotation(dir) {
@@ -203,24 +229,30 @@ function rotate(matrix, dir) {
   }
 }
 
-let dropCounter = 0;
-let dropInterval = 1000;
-let lastTime = 0;
 
 function update(time = 0) {
-  const deltaTime = time - lastTime;
-  lastTime = time;
-  dropCounter += deltaTime;
-  if (dropCounter > dropInterval) {
-    playerDown();
+  if(!gamePaused) {
+    const deltaTime = time - lastTime;
+    lastTime = time;
+    dropCounter += deltaTime;
+    if (dropCounter > dropInterval) {
+      playerDown();
+    }
+    draw();
   }
-  draw();
   requestAnimationFrame(update);
 }
 
 function updateScore() {
   document.getElementById('score').innerText = player.score;
 }
+
+function pausedHandler(shouldPause){
+  gamePaused = shouldPause
+  if(shouldPause) return pausedScreen.classList.remove('hide')
+  pausedScreen.classList.add('hide')
+}
+
 const colors = [
   'b9605c',
   '#ec5565',
@@ -241,18 +273,20 @@ const player = {
 };
 
 document.addEventListener('keydown', (event) => {
-  if (event.keyCode === 37) {
+  if (event.keyCode === 37 && !gamePaused) {
     // player.pos.x--;
     playerMove(-1);
-  } else if (event.keyCode === 39) {
+  } else if (event.keyCode === 39 && !gamePaused) {
     playerMove(1);
     // player.pos.x++;
-  } else if (event.keyCode === 40) {
+  } else if (event.keyCode === 40 && !gamePaused) {
     playerDown();
-  } else if (event.keyCode === 90) {
+  } else if (event.keyCode === 90 && !gamePaused) {
     playerRotation(-1);
-  } else if (event.keyCode === 88) {
+  } else if (event.keyCode === 88 && !gamePaused) {
     playerRotation(1);
+  }else if(event.key === 'Enter'){
+    pausedHandler(!gamePaused)
   }
 });
 left.addEventListener('click', () => {
@@ -269,6 +303,14 @@ rotateLeft.addEventListener('click', () => {
 });
 rotateRight.addEventListener('click', () => {
   playerRotation(1);
+});
+
+pauseBtn.addEventListener('click', ()=> {
+  pausedHandler(true)
+});
+
+playBtn.addEventListener('click', ()=> {
+  pausedHandler(false)
 });
 
 resetPlayer();
