@@ -5,9 +5,9 @@ const down = document.getElementById('down');
 const rotateLeft = document.getElementById('rotate1');
 const rotateRight = document.getElementById('rotate2');
 const context = canvas.getContext('2d');
-const pausedScreen = document.querySelector('.paused-screen')
-const pauseBtn = document.querySelector('.button-pause')
-const playBtn = document.querySelector('.button-play')
+const pausedScreen = document.querySelector('.paused-screen');
+const pauseBtn = document.querySelector('.button-pause');
+const playBtn = document.querySelector('.button-play');
 context.scale(20, 20);
 // canvas.window.screen.height;
 // canvas.window.screen.width;
@@ -18,8 +18,9 @@ context.fillRect(0, 0, canvas.width, canvas.height);
 let dropCounter = 0;
 let dropInterval = 1000;
 let lastTime = 0;
-let pieces = generateQueuePieces()
-let gamePaused = false
+let pieces = generateQueuePieces();
+let gamePaused = false;
+let localStorageScore;
 
 function collide(playZone, player) {
   // const [m, o] = [player.matrix, player.pos];
@@ -171,18 +172,18 @@ function playerMove(dir) {
   }
 }
 
-function generateQueuePieces () {
-  const arr = Array.from('ILJOTSZ')
-  arr.sort(() => 0.5 - Math.random());  
+function generateQueuePieces() {
+  const arr = Array.from('ILJOTSZ');
+  arr.sort(() => 0.5 - Math.random());
   return arr;
 }
 
 function resetPlayer() {
-  if(pieces.length === 0){
-    pieces = generateQueuePieces()
+  if (pieces.length === 0) {
+    pieces = generateQueuePieces();
   }
 
-  generateMatrixAndRemoveFromQueue()
+  generateMatrixAndRemoveFromQueue();
   player.pos.y = 0;
   player.pos.x =
     ((playZone[0].length / 2) | 0) - ((player.matrix[0].length / 2) | 0);
@@ -190,15 +191,17 @@ function resetPlayer() {
   if (collide(playZone, player)) {
     playZone.forEach((row) => row.fill(0));
     player.score = 0;
-    pieces = generateQueuePieces()
-    generateMatrixAndRemoveFromQueue()
+    pieces = generateQueuePieces();
+    generateMatrixAndRemoveFromQueue();
+    console.log('Game Over');
+    getLocalStorage();
     updateScore();
   }
 }
 
-function generateMatrixAndRemoveFromQueue(){
+function generateMatrixAndRemoveFromQueue() {
   player.matrix = generatePieces(pieces[0]);
-  pieces.shift()
+  pieces.shift();
 }
 
 function playerRotation(dir) {
@@ -229,9 +232,24 @@ function rotate(matrix, dir) {
   }
 }
 
+function getLocalStorage() {
+  if (localStorage.getItem('score')) {
+    return localStorage.getItem('score');
+  } else {
+    return 0;
+  }
+}
+
+function setLocalStorage(score) {
+  if (score > localStorageScore) {
+    console.log('new high score');
+    localStorage.setItem('score', score);
+  }
+  document.getElementById('highScore').innerText = getLocalStorage();
+}
 
 function update(time = 0) {
-  if(!gamePaused) {
+  if (!gamePaused) {
     const deltaTime = time - lastTime;
     lastTime = time;
     dropCounter += deltaTime;
@@ -244,13 +262,15 @@ function update(time = 0) {
 }
 
 function updateScore() {
+  setLocalStorage(player.score);
+
   document.getElementById('score').innerText = player.score;
 }
 
-function pausedHandler(shouldPause){
-  gamePaused = shouldPause
-  if(shouldPause) return pausedScreen.classList.remove('hide')
-  pausedScreen.classList.add('hide')
+function pausedHandler(shouldPause) {
+  gamePaused = shouldPause;
+  if (shouldPause) return pausedScreen.classList.remove('hide');
+  pausedScreen.classList.add('hide');
 }
 
 const colors = [
@@ -285,8 +305,8 @@ document.addEventListener('keydown', (event) => {
     playerRotation(-1);
   } else if (event.keyCode === 88 && !gamePaused) {
     playerRotation(1);
-  }else if(event.key === 'Enter'){
-    pausedHandler(!gamePaused)
+  } else if (event.key === 'Enter') {
+    pausedHandler(!gamePaused);
   }
 });
 left.addEventListener('click', () => {
@@ -305,13 +325,22 @@ rotateRight.addEventListener('click', () => {
   playerRotation(1);
 });
 
-pauseBtn.addEventListener('click', ()=> {
-  pausedHandler(true)
+pauseBtn.addEventListener('click', () => {
+  pausedHandler(true);
 });
 
-playBtn.addEventListener('click', ()=> {
-  pausedHandler(false)
+playBtn.addEventListener('click', () => {
+  pausedHandler(false);
 });
-
+document.getElementById('highScore').innerText = getLocalStorage();
 resetPlayer();
 update();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    this.navigator.serviceWorker
+      .register('./serviceWorker.js')
+      .then((res) => console.log('registered'))
+      .catch((err) => console.log('error', err));
+  });
+}
